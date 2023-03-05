@@ -11,6 +11,8 @@ def connect(path):
     cursor.execute(' PRAGMA foreign_keys=ON; ')
     connection.commit()
 
+    return
+
 
 def drop_tables():
     global connection, cursor
@@ -200,16 +202,30 @@ def insert_data_Order_items(n):
     return
 
 
-def database(name, customers, sellers, orders, order_items):
-    connect(name)
+def Uninformed(path):
+    global connection, cursor
+    connect(path)
+    cursor.execute(' PRAGMA automatic_index = OFF ')
+
+    connection.commit()
+    connection.close()
+
+    return
+
+
+def database(path, customers, sellers, orders, order_items):
+    global connection, cursor
+    connect(path)
     drop_tables()
     create_tables()
     insert_data_Customers(customers)
     insert_data_Sellers(sellers)
     insert_data_Orders(orders)
     insert_data_Order_items(order_items)
+    connection.commit()
+    connection.close()
 
-    # print(connection)
+    print(connection)
 
     return
 
@@ -218,6 +234,7 @@ def main():
     database("A3Small.db", 10000, 500, 10000, 2000)
     database("A3Medium.db", 20000, 750, 20000, 4000)
     database("A3Large.db", 33000, 1000, 33000, 10000)
+    Uninformed("A3Small.db")
 
 if __name__ == '__main__':
     main()
