@@ -1,15 +1,16 @@
 SELECT COUNT(DISTINCT Sellers.seller_postal_code)
-FROM Customers, Orders, Order_items, Sellers
-WHERE Customers.customer_id = Orders.customer_id
-AND Orders.order_id = Order_items.order_id
-AND Order_items.seller_id = Sellers.seller_id
-AND Customers.customer_id = (
-    SELECT Customers.customer_id
-    FROM Customers, Orders
-    WHERE Customers.customer_id = Orders.customer_id
-    GROUP BY Customers.customer_id
-    HAVING COUNT(DISTINCT Orders.order_id) > 1
-    ORDER BY RANDOM()
-    LIMIT 1
+FROM Orders
+JOIN Customers ON Customers.customer_id = Orders.customer_id
+JOIN Order_items ON Orders.order_id = Order_items.order_id
+JOIN Sellers ON Order_items.seller_id = Sellers.seller_id
+WHERE Customers.customer_id IN (
+    SELECT Orders.customer_id 
+    FROM (
+        SELECT customer_id, COUNT(DISTINCT order_item_id) AS item_count
+        FROM Orders 
+        JOIN Order_items ON Orders.order_id = Order_items.order_id
+        GROUP BY customer_id
+        HAVING item_count > 1
+    ) AS multi_item_customers
 )
 GROUP BY Orders.order_id;
